@@ -4,16 +4,12 @@ import config from "config";
 import morgan from "morgan";
 import logger from "./utils/logging.js";
 import uploadRoutes from "./router/upload/index.js";
-// import redisRateLimiter from "./utils/rateLimit.js";
+import apiRoutes from "./router/api/v1/index.js";
 
+logger.info(`Starting express server at port ${config.server.port}`);
 const app = express();
-logger.info(`Started express server at port ${config.server.port}`);
 
 app.use(morgan("combined", { stream: logger.stream.write }));
-// app.use(redisRateLimiter);
 app.use(uploadRoutes);
-app.get("/", function (req, res) {
-  logger.info("hello");
-  res.send("Hello World!");
-});
+app.use("/api/v1/", apiRoutes);
 app.listen(config.server.port);

@@ -16,7 +16,7 @@ async function redisRateLimiter(req, res, next) {
       await client.set(
         req.ip,
         JSON.stringify({
-          quota: MAX_WINDOW_REQUEST_COUNT,
+          quota: MAX_WINDOW_REQUEST_COUNT - 1,
           timestamp: Date.now(),
         })
       );
@@ -27,10 +27,9 @@ async function redisRateLimiter(req, res, next) {
       let reqData = JSON.parse(existingReq);
       if (reqData.quota == 0) {
         let timeDiff = Date.now() - reqData.timestamp;
-        console.log(timeDiff);
         if (timeDiff / 1000 > WINDOW_SIZE_IN_SECONDS) {
           reqData.timestamp = Date.now();
-          reqData.quota = MAX_WINDOW_REQUEST_COUNT;
+          reqData.quota = MAX_WINDOW_REQUEST_COUNT - 1;
           await client.set(req.ip, JSON.stringify(reqData));
           next();
         } else {
