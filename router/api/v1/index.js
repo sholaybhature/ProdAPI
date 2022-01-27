@@ -1,7 +1,8 @@
 import express from "express";
 import fs from "fs";
-import redisRateLimiter from "../../../utils/rateLimit.js";
-import { signin, signup } from "../../../controllers/user.js";
+import redisRateLimiter from "../../../middlewares/rateLimit.js";
+import { login, register } from "../../../controllers/authController.js";
+import { updateUser, deleteUser } from "../../../controllers/userController.js";
 const router = express.Router();
 router.use(redisRateLimiter);
 
@@ -21,9 +22,10 @@ router.get("/data", function (req, res) {
   });
 });
 
-router.post("/register", signup, function (req, res) {});
-
-router.post("/login", signin, function (req, res) {});
+router.post("/register", register);
+router.patch("/user/:id", updateUser);
+router.delete("/user/:id", deleteUser);
+router.post("/login", login);
 
 router.get("/hidden", (req, res) => {
   if (!req.user) {

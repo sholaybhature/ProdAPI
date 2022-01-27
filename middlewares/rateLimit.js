@@ -1,4 +1,5 @@
 import redis from "redis";
+import { QuotaLimitExceededError } from "../utils/apiError.js";
 
 const client = redis.createClient();
 await client.connect();
@@ -33,8 +34,7 @@ async function redisRateLimiter(req, res, next) {
           await client.set(req.ip, JSON.stringify(reqData));
           next();
         } else {
-          res.status(429);
-          res.send("You have reached your quota");
+          throw new QuotaLimitExceededError();
         }
       } else {
         // Decrement the quota

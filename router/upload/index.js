@@ -1,5 +1,5 @@
 import express from "express";
-import logger from "../../utils/logging.js";
+import logger from "../../config/logging.js";
 import busboy from "busboy";
 import path from "path";
 import fs from "fs";
