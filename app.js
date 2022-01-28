@@ -11,6 +11,7 @@ import { morganSuccessHandler, morganErrorHandler } from "./config/morgan.js";
 
 import uploadRoutes from "./router/upload/index.js";
 import apiRoutes from "./router/api/v1/index.js";
+import authRoutes from "./router/v1/authRoutes.js";
 import verifyToken from "./middlewares/JWTVerify.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { APIError } from "./utils/apiError.js";
@@ -37,7 +38,8 @@ app.use(verifyToken);
 app.use(morganSuccessHandler);
 app.use(morganErrorHandler);
 app.use(uploadRoutes);
-app.use("/api/v1/", apiRoutes);
+// app.use("/api/v1/", apiRoutes);
+app.use("/api/v1", authRoutes);
 app.use((req, res, next) => {
   next(new APIError("Not found", 404));
 });

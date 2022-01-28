@@ -1,3 +1,6 @@
 server: 
   port: 8000
   db: mongodb+srv://saurabh:admin@cluster0.1ucez.mongodb.net/cluster0?retryWrites=true&w=majority
+  jwt:
+    accessTokenExpiry: 300000
+    refreshTokenExpiry: 604800000

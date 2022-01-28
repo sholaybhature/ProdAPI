@@ -1,7 +1,7 @@
 export class APIError extends Error {
   constructor(message, status) {
     super();
-    Error.captureStackTrace(this, this.constructor.name);
+    Error.captureStackTrace(this, this.constructor);
     this.name = this.constructor.name;
     this.message = message || "Something went wrong.";
     this.status = status || 500;
@@ -41,5 +41,11 @@ export class UserUpdateError extends APIError {
 export class UserNotAuthorizedError extends APIError {
   constructor(message, status) {
     super(message || "Incorrect email or password", status || 401);
+  }
+}
+
+export class NotFoundError extends APIError {
+  constructor(message, status) {
+    super(message || "Not found", status || 400);
   }
 }

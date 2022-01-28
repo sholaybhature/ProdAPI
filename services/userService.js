@@ -3,7 +3,7 @@ import { UserNotFoundError, UserUpdateError } from "../utils/apiError.js";
 
 export const createUser = async (userBody) => {
   const user = User.create(userBody);
-  return user.transform();
+  return user;
 };
 
 export const getUserById = async (id) => {
