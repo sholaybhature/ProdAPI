@@ -9,9 +9,10 @@ import cors from "cors";
 import helmet from "helmet";
 import { morganSuccessHandler, morganErrorHandler } from "./config/morgan.js";
 
-import uploadRoutes from "./router/upload/index.js";
-import apiRoutes from "./router/api/v1/index.js";
-import authRoutes from "./router/v1/authRoutes.js";
+// TODO: token verify middleware, admin privileges, switch to redis for jwt blacklist
+
+// import uploadRoutes from "./router/upload/index.js";
+import apiRoutes from "./router/v1/index.js";
 import verifyToken from "./middlewares/JWTVerify.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { APIError } from "./utils/apiError.js";
@@ -37,9 +38,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(verifyToken);
 app.use(morganSuccessHandler);
 app.use(morganErrorHandler);
-app.use(uploadRoutes);
-// app.use("/api/v1/", apiRoutes);
-app.use("/api/v1", authRoutes);
+// app.use(uploadRoutes);
+app.use("/api/v1", apiRoutes);
 app.use((req, res, next) => {
   next(new APIError("Not found", 404));
 });

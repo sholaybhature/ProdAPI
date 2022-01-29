@@ -1,8 +1,5 @@
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { MongoError } from "../utils/apiError.js";
-import logger from "../config/logging.js";
 
 const roles = ["user", "admin"];
 
@@ -44,6 +41,11 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.statics.isEmailTaken = async function (email, userId) {
+  const user = await this.findOne({ email, _id: { $ne: userId } });
+  return !!user;
+};
+
 userSchema.methods.isPasswordSame = async function (password) {
   return bcrypt.compare(password, this.password);
 };
@@ -56,15 +58,6 @@ userSchema.methods.transform = function () {
   });
   return userData;
 };
-
-userSchema.post("save", async function (error, doc, next) {
-  if (error.name === "MongoServerError" && error.code === 11000) {
-    throw new MongoError("email already exists");
-  } else {
-    logger.error(error);
-    next(error);
-  }
-});
 
 const User = mongoose.model("User", userSchema);
 

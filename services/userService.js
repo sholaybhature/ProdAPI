@@ -1,5 +1,9 @@
 import User from "../models/userModel.js";
-import { UserNotFoundError, UserUpdateError } from "../utils/apiError.js";
+import {
+  APIError,
+  UserNotFoundError,
+  UserUpdateError,
+} from "../utils/apiError.js";
 
 export const createUser = async (userBody) => {
   const user = User.create(userBody);
@@ -21,6 +25,9 @@ export const updateUserById = async (userId, userBody) => {
   if (!user) {
     throw new UserNotFoundError();
   }
+  if (userBody.email && (await User.isEmailTaken(userBody.email, userId))) {
+    throw new APIError("Email already taken", 400);
+  }
   Object.assign(user, userBody);
   user.save();
   return user.transform();
@@ -33,4 +40,10 @@ export const deleteUserById = async (userId) => {
   }
   await user.remove();
   return user.transform();
+};
+
+export const getUsers = async () => {
+  const users = await User.find({});
+  const usersTransform = users.map((user) => user.transform());
+  return usersTransform;
 };
