@@ -8,16 +8,19 @@ const tokenTypes = {
   REFRESH: "refresh",
 };
 
-const createToken = (userId, type, expires) => {
+// Instead of saving role here, fetch from db?
+const createToken = (userId, userRole, type, expires) => {
   const payload = {
     sub: userId,
     iat: Date.now(),
     eat: expires,
+    role: userRole,
     type: type,
   };
   return jwt.sign(payload, process.env.JWT_SECRET);
 };
 
+// Use redis for blacklisting of jwt?
 const saveToken = async (token, userId, expires) => {
   const tokenDoc = await refreshToken.create({
     token: token,
@@ -27,12 +30,18 @@ const saveToken = async (token, userId, expires) => {
   return tokenDoc;
 };
 
-export const generateAuthTokens = async (userId) => {
+export const generateAuthTokens = async (userId, userRole) => {
   const accessTokenExpiry = Date.now() + config.server.jwt.accessTokenExpiry;
   const refreshTokenExpiry = Date.now() + config.server.jwt.refreshTokenExpiry;
-  const accessToken = createToken(userId, tokenTypes.ACCESS, accessTokenExpiry);
+  const accessToken = createToken(
+    userId,
+    userRole,
+    tokenTypes.ACCESS,
+    accessTokenExpiry
+  );
   const refreshToken = createToken(
     userId,
+    userRole,
     tokenTypes.REFRESH,
     refreshTokenExpiry
   );
@@ -50,15 +59,15 @@ export const generateAuthTokens = async (userId) => {
 };
 
 export const updateRefreshToken = async (token) => {
-  const payload = jwt.verify(token, process.env.JWT_SECRET);
-  const tokenDoc = await refreshToken.findOneAndRemove({
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const refreshTokenDoc = await refreshToken.findOne({
     token: token,
-    user: payload.sub,
-    blacklisted: false,
+    user: decoded.sub,
   });
-  if (!tokenDoc) {
-    throw new APIError("Token not found", 400);
+  if (!refreshTokenDoc) {
+    throw new APIError("Not found", 404);
   }
-  const newTokens = await generateAuthTokens(payload.sub);
+  await refreshTokenDoc.remove();
+  const newTokens = await generateAuthTokens(decoded.sub, decoded.role);
   return newTokens;
 };

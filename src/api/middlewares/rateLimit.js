@@ -1,9 +1,10 @@
 import redis from "redis";
+import logger from "../config/logging.js";
 import { QuotaLimitExceededError } from "../utils/apiError.js";
 
 const client = redis.createClient();
 await client.connect();
-client.on("error", (err) => console.log("Error in connecting to redis", err));
+client.on("error", (err) => logger.error(err));
 
 const WINDOW_SIZE_IN_SECONDS = 60;
 const MAX_WINDOW_REQUEST_COUNT = 5;
@@ -34,7 +35,7 @@ async function redisRateLimiter(req, res, next) {
           await client.set(req.ip, JSON.stringify(reqData));
           next();
         } else {
-          throw new QuotaLimitExceededError();
+          next(new QuotaLimitExceededError());
         }
       } else {
         // Decrement the quota

@@ -50,6 +50,7 @@ userSchema.methods.isPasswordSame = async function (password) {
   return bcrypt.compare(password, this.password);
 };
 
+// Send only relevant details of user back to the client
 userSchema.methods.transform = function () {
   const userData = {};
   const fields = ["id", "name", "email", "role"];

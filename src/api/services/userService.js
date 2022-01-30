@@ -1,9 +1,6 @@
+import refreshToken from "../models/refreshTokenModel.js";
 import User from "../models/userModel.js";
-import {
-  APIError,
-  UserNotFoundError,
-  UserUpdateError,
-} from "../utils/apiError.js";
+import { APIError } from "../utils/apiError.js";
 
 export const createUser = async (userBody) => {
   const user = User.create(userBody);
@@ -23,12 +20,13 @@ export const getUserByEmail = async (email) => {
 export const updateUserById = async (userId, userBody) => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new UserNotFoundError();
+    throw new APIError("User doesn't exists", 404);
   }
   if (userBody.email && (await User.isEmailTaken(userBody.email, userId))) {
     throw new APIError("Email already taken", 400);
   }
   Object.assign(user, userBody);
+  // not atomic?!
   user.save();
   return user.transform();
 };
@@ -36,7 +34,7 @@ export const updateUserById = async (userId, userBody) => {
 export const deleteUserById = async (userId) => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new UserNotFoundError();
+    throw new APIError("User doesn't exists", 404);
   }
   await user.remove();
   return user.transform();

@@ -4,7 +4,21 @@ import busboy from "busboy";
 import path from "path";
 import fs from "fs";
 
+// IRRELEVANT TO OTHER ROUTES, SOLELY FOR TESTING OUT LARGE UPLOADS/READS
+
 const router = express.Router();
+
+router.get("/data", function (req, res) {
+  const filePath = "./files/generateText.md";
+  const src = fs.createReadStream(filePath);
+  src.on("open", function () {
+    src.pipe(res);
+  });
+  src.on("error", function (err) {
+    logger.log("error", err);
+    res.end(err);
+  });
+});
 
 router.get("/upload", function (req, res) {
   res.status(200).send(`
@@ -24,16 +38,14 @@ router.post("/upload", function (req, res) {
   const filePath = "./files";
   const bb = busboy({ headers: req.headers });
   bb.on("file", (name, file, info) => {
-    logger.log("info", "Starting file upload");
     const saveTo = path.join(filePath, `busboy-upload-${info.filename}`);
     file.pipe(fs.createWriteStream(saveTo));
   });
   bb.on("error", function (err) {
-    logger.log("error", `Error in file upload: ${err}`);
+    logger.error(err);
   });
   bb.on("close", () => {
     res.status(200).send(`Success`);
-    logger.log("info", "Finished file upload");
   });
   req.pipe(bb);
 });

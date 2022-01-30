@@ -1,4 +1,3 @@
-import Joi from "joi";
 import { APIError } from "../utils/apiError.js";
 
 function validator(schema) {
@@ -8,8 +7,7 @@ function validator(schema) {
       const errorMessage = error.details
         .map((details) => details.message)
         .join(", ");
-
-      return next(new APIError(errorMessage, 422));
+      next(new APIError(errorMessage, 422));
     } else {
       req.body = value;
       next();

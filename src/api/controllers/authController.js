@@ -4,13 +4,12 @@ import {
   generateAuthTokens,
   updateRefreshToken,
 } from "../services/tokenService.js";
-import { APIError } from "../utils/apiError.js";
 
 export const register = async (req, res, next) => {
   try {
     const user = await createUser(req.body);
     // Remove this later
-    const token = await generateAuthTokens(user.id);
+    const token = await generateAuthTokens(user.id, user.role);
     res.status(201);
     res.json({ user: user.transform(), token });
   } catch (err) {
@@ -22,7 +21,7 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await loginWithEmailPass(email, password);
-    const token = await generateAuthTokens(user.id);
+    const token = await generateAuthTokens(user.id, user.role);
     res.status(200);
     res.json({ user: user.transform(), token });
   } catch (err) {

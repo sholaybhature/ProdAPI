@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Refresh token for JWT
 const refreshTokenSchema = mongoose.Schema(
   {
     token: {
@@ -14,10 +15,6 @@ const refreshTokenSchema = mongoose.Schema(
     expires: {
       type: Date,
       required: true,
-    },
-    blacklisted: {
-      type: Boolean,
-      default: false,
     },
   },
   {
